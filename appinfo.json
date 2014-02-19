@@ -1,0 +1,17 @@
+{
+  "uuid": "b54fcd69-9ede-4e86-8b22-6160b4c4c3c4",
+  "shortName": "Magic Watch",
+  "longName": "Magic Watch",
+  "companyName": "Vidal Graupera",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
