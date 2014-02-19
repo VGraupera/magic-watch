@@ -27,13 +27,44 @@ static char *fortunes[20] = {
   "Very doubtful",
 };
 
-static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", __PRETTY_FUNCTION__);
 
+static void animation_started(Animation *animation, void *data) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", __PRETTY_FUNCTION__);
+}
+
+static void animation_stopped(Animation *animation, bool finished, void *data) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", __PRETTY_FUNCTION__);
   int index = rand() % 20;
   text_layer_set_text(text_layer, fortunes[index]);
+}
 
+static void accel_tap_handler(AccelAxisType axis, int32_t direction) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "%s", __PRETTY_FUNCTION__);
   vibes_short_pulse();
+
+  Layer *window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_bounds(window_layer);
+  GRect screen_bottom_rect = GRect(0, bounds.size.h, bounds.size.w, bounds.size.h);
+  PropertyAnimation *flyout_animation = property_animation_create_layer_frame(text_layer_get_layer(text_layer), NULL, &screen_bottom_rect);
+
+  // Duration defaults to 250 ms
+  animation_set_duration(&flyout_animation->animation, 1000);
+  GRect starting_rect = layer_get_frame(text_layer_get_layer(text_layer));
+
+  GRect screen_top_rect = GRect(0, 0, bounds.size.w, bounds.size.h);
+  PropertyAnimation *flyin_animation = property_animation_create_layer_frame(text_layer_get_layer(text_layer), &screen_top_rect, &starting_rect);
+
+  animation_set_duration(&flyin_animation->animation, 1000);
+  // Delay defaults to 0 ms
+  animation_set_delay(&flyin_animation->animation, 1000);
+
+  animation_set_handlers((Animation*) flyout_animation, (AnimationHandlers) {
+      .started = (AnimationStartedHandler) animation_started,
+      .stopped = (AnimationStoppedHandler) animation_stopped,
+      }, NULL /* callback data */);
+
+  animation_schedule((Animation*) flyout_animation);
+  animation_schedule((Animation*) flyin_animation);
 }
 
 static void window_load(Window *window) {
